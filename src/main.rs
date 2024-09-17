@@ -23,15 +23,23 @@ fn main() {
 
     let latex_file = generate_latex_file(&args.title, &args.course, args.questions);
 
-    let formatted_title = args.title.split_whitespace().collect::<Vec<&str>>().join("_");
+    let formatted_title = args
+        .title
+        .split_whitespace()
+        .collect::<Vec<&str>>()
+        .join("_");
 
-    write_to_file(&format!("{}_{}.tex", args.course, formatted_title), &latex_file);
+    write_to_file(
+        &format!("{}_{}.tex", args.course, formatted_title),
+        &latex_file,
+    );
 }
 
 fn generate_latex_file(title: &str, course: &str, length: u8) -> String {
     let mut course_map = std::collections::HashMap::new();
     course_map.insert("CS433", "CS433: Computer System Organization");
     course_map.insert("CS412", "CS412: Introduction to Data Mining");
+    course_map.insert("CS425", "CS425: Distributed Systems");
 
     let environment = format!(
         r#"\documentclass[12pt,a4paper]{{article}}
@@ -97,3 +105,4 @@ fn write_to_file(file_name: &str, content: &str) {
     file.write_all(content.as_bytes())
         .expect("Unable to write data to file");
 }
+
