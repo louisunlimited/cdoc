@@ -27,7 +27,7 @@ fn main() {
     let course_prefix = course_parts[0];
 
     let formatted_title = args.title.replace(" ", "");
-    
+
     write_to_file(&format!("{}_{}.tex", course_prefix, formatted_title), &latex_file);
 }
 
@@ -69,7 +69,8 @@ fn generate_latex_file(title: &str, course: &str, length: u8) -> String {
             r#"\begin{{questions}}{{{}}}
     \question
     Type something here...
-\end{{questions}}"#,
+\end{{questions}}
+"#,
             i
         ));
     }
