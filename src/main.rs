@@ -23,15 +23,16 @@ fn main() {
 
     let latex_file = generate_latex_file(&args.title, &args.course, args.questions);
 
-    let course_parts: Vec<&str> = args.course.split(":").collect();
-    let course_prefix = course_parts[0];
+    let formatted_title = args.title.split_whitespace().collect::<Vec<&str>>().join("_");
 
-    let formatted_title = args.title.replace(" ", "");
-
-    write_to_file(&format!("{}_{}.tex", course_prefix, formatted_title), &latex_file);
+    write_to_file(&format!("{}_{}.tex", args.course, formatted_title), &latex_file);
 }
 
 fn generate_latex_file(title: &str, course: &str, length: u8) -> String {
+    let mut course_map = std::collections::HashMap::new();
+    course_map.insert("CS433", "CS433: Computer System Organization");
+    course_map.insert("CS412", "CS412: Introduction to Data Mining");
+
     let environment = format!(
         r#"\documentclass[12pt,a4paper]{{article}}
 \usepackage{{enumitem}}
@@ -59,7 +60,7 @@ fn generate_latex_file(title: &str, course: &str, length: u8) -> String {
 \author{{Louis Qian \\ {}}}
 \maketitle"#,
         title,
-        course
+        course_map.get(course).unwrap()
     );
 
     let mut questions = String::new();
