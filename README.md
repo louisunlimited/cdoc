@@ -26,3 +26,4 @@ CS101 = "CS101: Introduction to Programming"
 - [ ] Add a way to specify the output directory
 - [x] Make it be able to read configuation from ~/.cdocrc
 - [ ] Automate CI/CD
+- [ ] Standardize config reading & handling
