@@ -1,10 +1,9 @@
+mod config;
+
 use clap::Parser;
 use std::fs::File;
 use std::io::Write;
-use ini::Ini;
-use std::path::PathBuf;
-use std::collections::HashMap;
-use dirs;
+use config::Config;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -28,7 +27,7 @@ struct Args {
 
 fn main() {
     // Reads and loads the configuration file from home directory
-    let config = load_config();
+    let config = Config::load().expect("Error loading configuration");
 
     // Parses cli args
     let args = Args::parse();
@@ -43,50 +42,27 @@ fn main() {
     );
 }
 
-fn load_config() -> Ini {
-    let home_dir = dirs::home_dir().expect("Could not find home directory");
-    let mut config_path = PathBuf::from(home_dir);
-    config_path.push(".cdocrc");
-
-    // if not found, create one
-    if !config_path.exists() {
-        File::create(&config_path).expect("Could not create config file");
-    }
-
-    Ini::load_from_file(config_path).expect("Could not load config file")
-}
-
-fn generate_latex_file(title: &str, course: &str, author: &Option<String>,  length: u8, config: &Ini) -> String {
-    let mut course_map = HashMap::new();
-    if let Some(section) = config.section(Some("courses")) {
-        for (key, value) in section.iter() {
-            course_map.insert(key, value);
-        }
-    }
-
-    let config_author = config.get_from(Some("Settings"), "Author").unwrap_or("John Doe");
-
-    let environment = format!(
-        r#"\documentclass[12pt,a4paper]{{article}}
-\usepackage{{enumitem}}
-\usepackage{{array}}
+fn generate_latex_file(title: &str, course: &str, author: &Option<String>, length: u8, config: &Config) -> String {
+    let environment = r#"\documentclass[12pt,a4paper]{article}
+\usepackage{enumitem}
+\usepackage{array}
 
 % Define the custom environment with optional argument for sub-question style
-\newcounter{{question}}
-\newenvironment{{questions}}[2][\alph]
-{{%
-  \setcounter{{question}}{{#2}}
-  \renewcommand{{\labelenumii}}{{#1{{enumii}})}}
-  % Apply bold and different font to the main question text
-  \noindent \textbf{{\bfseries Question \thequestion.}}%
-  \begin{{enumerate}}[label=#1*)]
-}}
-{{%
-  \end{{enumerate}}
-}}
+\newcounter{question}
+\newenvironment{questions}[2][\alph]
+{%
+  \setcounter{question}{#2}
+  \renewcommand{\labelenumii}{#1{enumii})}
+  \noindent \textbf{\bfseries Question \thequestion.}%
+  \begin{enumerate}[label=#1*)]
+}
+{%
+  \end{enumerate}
+}
 
-\newcommand{{\question}}{{\item}}"#
-    );
+\newcommand{\question}{\item}"#.to_string();
+
+    let config_author = &config.author;
 
     let heading = format!(
         r#"\title{{{}}}
@@ -94,7 +70,7 @@ fn generate_latex_file(title: &str, course: &str, author: &Option<String>,  leng
 \maketitle"#,
         title,
         author.clone().unwrap_or(config_author.to_string()),
-        course_map.get(course).unwrap_or(&course)
+        config.get_course_name(course)
     );
 
     let mut questions = String::new();
@@ -122,7 +98,7 @@ fn generate_latex_file(title: &str, course: &str, author: &Option<String>,  leng
         environment, heading, questions
     );
 
-    return template;
+    template
 }
 
 fn write_to_file(file_name: &str, content: &str) {
@@ -130,4 +106,3 @@ fn write_to_file(file_name: &str, content: &str) {
     file.write_all(content.as_bytes())
         .expect("Unable to write data to file");
 }
-
