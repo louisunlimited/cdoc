@@ -23,14 +23,8 @@ fn main() {
 
     let latex_file = generate_latex_file(&args.title, &args.course, args.questions);
 
-    let formatted_title = args
-        .title
-        .split_whitespace()
-        .collect::<Vec<&str>>()
-        .join("_");
-
     write_to_file(
-        &format!("{}_{}.tex", args.course, formatted_title),
+        &format!("{}_{}.tex", args.course, args.title),
         &latex_file,
     );
 }
@@ -72,7 +66,6 @@ fn generate_latex_file(title: &str, course: &str, length: u8) -> String {
     );
 
     let mut questions = String::new();
-
     for i in 1..=length {
         questions.push_str(&format!(
             r#"\begin{{questions}}{{{}}}
