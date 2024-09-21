@@ -6,3 +6,5 @@ description = "Generate LaTeX template for homework!"
 
 [dependencies]
 clap = { version = "4.5.17", features = ["derive"] }
+dirs = "4.0"
+rust-ini = "0.21.1"

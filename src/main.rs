@@ -1,6 +1,10 @@
 use clap::Parser;
 use std::fs::File;
 use std::io::Write;
+use ini::Ini;
+use std::path::PathBuf;
+use std::collections::HashMap;
+use dirs;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -19,21 +23,42 @@ struct Args {
 }
 
 fn main() {
+    // Reads and loads the configuration file from home directory
+    let config = load_config();
+
+    // Parses cli args
     let args = Args::parse();
 
-    let latex_file = generate_latex_file(&args.title, &args.course, args.questions);
+    // Generates the latex file
+    let latex_file = generate_latex_file(&args.title, &args.course, args.questions, &config);
 
+    // Writes the latex file to disk with the specified name
     write_to_file(
         &format!("{}_{}.tex", args.course, args.title),
         &latex_file,
     );
 }
 
-fn generate_latex_file(title: &str, course: &str, length: u8) -> String {
-    let mut course_map = std::collections::HashMap::new();
-    course_map.insert("CS433", "CS433: Computer System Organization");
-    course_map.insert("CS412", "CS412: Introduction to Data Mining");
-    course_map.insert("CS425", "CS425: Distributed Systems");
+fn load_config() -> Ini {
+    let home_dir = dirs::home_dir().expect("Could not find home directory");
+    let mut config_path = PathBuf::from(home_dir);
+    config_path.push(".cdocrc");
+
+    // if not found, create one
+    if !config_path.exists() {
+        File::create(&config_path).expect("Could not create config file");
+    }
+
+    Ini::load_from_file(config_path).expect("Could not load config file")
+}
+
+fn generate_latex_file(title: &str, course: &str, length: u8, config: &Ini) -> String {
+    let mut course_map = HashMap::new();
+    if let Some(section) = config.section(Some("courses")) {
+        for (key, value) in section.iter() {
+            course_map.insert(key, value);
+        }
+    }
 
     let environment = format!(
         r#"\documentclass[12pt,a4paper]{{article}}
@@ -62,7 +87,7 @@ fn generate_latex_file(title: &str, course: &str, length: u8) -> String {
 \author{{Louis Qian \\ {}}}
 \maketitle"#,
         title,
-        course_map.get(course).unwrap()
+        course_map.get(course).unwrap_or(&course)
     );
 
     let mut questions = String::new();
