@@ -19,7 +19,7 @@ struct Args {
 
     /// Author
     #[arg(short, long)]
-    author: String,
+    author: Option<String>,
 
     /// No. of questions
     #[arg(short, long)]
@@ -56,13 +56,15 @@ fn load_config() -> Ini {
     Ini::load_from_file(config_path).expect("Could not load config file")
 }
 
-fn generate_latex_file(title: &str, course: &str, author: &str,  length: u8, config: &Ini) -> String {
+fn generate_latex_file(title: &str, course: &str, author: &Option<String>,  length: u8, config: &Ini) -> String {
     let mut course_map = HashMap::new();
     if let Some(section) = config.section(Some("courses")) {
         for (key, value) in section.iter() {
             course_map.insert(key, value);
         }
     }
+
+    let config_author = config.get_from(Some("Settings"), "Author").unwrap_or("John Doe");
 
     let environment = format!(
         r#"\documentclass[12pt,a4paper]{{article}}
@@ -91,7 +93,7 @@ fn generate_latex_file(title: &str, course: &str, author: &str,  length: u8, con
 \author{{{} \\ {}}}
 \maketitle"#,
         title,
-        author,
+        author.clone().unwrap_or(config_author.to_string()),
         course_map.get(course).unwrap_or(&course)
     );
 
