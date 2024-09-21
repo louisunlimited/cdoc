@@ -4,7 +4,7 @@ A very tiny cli tool that helps me spin up empty latex homework templates to wri
 
 ## Configuration
 
-This tool reads optional configuration from a file called `cdocrc` in the current directory. If the file is not found, it will create a empty one for you. The configuration file is a file in [INI format](https://en.wikipedia.org/wiki/INI_file) that looks like this:
+This tool reads optional configuration from a file called `~/.cdocrc` in the `$HOME` directory. If the file is not found, it will create a empty one for you. The configuration file is a file in [INI format](https://en.wikipedia.org/wiki/INI_file) that looks like this:
 
 ```ini
 [courses]
@@ -20,5 +20,5 @@ CS101 = "CS101: Introduction to Programming"
 
 - [ ] Move away from string literals to a template file
 - [ ] Add a way to specify the output directory
-- [ ] Make it be able to read configuation from ~/.cdocrc
+- [x] Make it be able to read configuation from ~/.cdocrc
 - [ ] Automate CI/CD
