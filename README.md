@@ -2,6 +2,26 @@
 
 A very tiny cli tool that helps me spin up empty latex homework templates to write homeworks on.
 
+## Usage
+
+```sh
+cdoc --help
+```
+
+```plaintext
+Generate LaTeX template for homework!
+
+Usage: cdoc [OPTIONS] --title <TITLE> --course <COURSE> --questions <QUESTIONS>
+
+Options:
+  -t, --title <TITLE>          Title of homework
+  -c, --course <COURSE>        Course Number
+  -a, --author <AUTHOR>        Optional Author's name
+  -q, --questions <QUESTIONS>  Number of questions to gererate
+  -h, --help                   Print help
+  -V, --version                Print version
+```
+
 ## Configuration
 
 This tool reads optional configuration from a file called `~/.cdocrc` in the `$HOME` directory. If the file is not found, it will create a empty one for you. The configuration file is a file in [INI format](https://en.wikipedia.org/wiki/INI_file) that looks like this:

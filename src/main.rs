@@ -8,7 +8,7 @@ use config::Config;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// title of homework
+    /// Title of homework
     #[arg(short, long)]
     title: String,
 
@@ -16,11 +16,11 @@ struct Args {
     #[arg(short, long)]
     course: String,
 
-    /// Author
+    /// Optional Author's name
     #[arg(short, long)]
     author: Option<String>,
 
-    /// No. of questions
+    /// Number of questions to gererate
     #[arg(short, long)]
     questions: u8,
 }
