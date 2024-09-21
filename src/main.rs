@@ -17,6 +17,10 @@ struct Args {
     #[arg(short, long)]
     course: String,
 
+    /// Author
+    #[arg(short, long)]
+    author: String,
+
     /// No. of questions
     #[arg(short, long)]
     questions: u8,
@@ -30,7 +34,7 @@ fn main() {
     let args = Args::parse();
 
     // Generates the latex file
-    let latex_file = generate_latex_file(&args.title, &args.course, args.questions, &config);
+    let latex_file = generate_latex_file(&args.title, &args.course, &args.author, args.questions, &config);
 
     // Writes the latex file to disk with the specified name
     write_to_file(
@@ -52,7 +56,7 @@ fn load_config() -> Ini {
     Ini::load_from_file(config_path).expect("Could not load config file")
 }
 
-fn generate_latex_file(title: &str, course: &str, length: u8, config: &Ini) -> String {
+fn generate_latex_file(title: &str, course: &str, author: &str,  length: u8, config: &Ini) -> String {
     let mut course_map = HashMap::new();
     if let Some(section) = config.section(Some("courses")) {
         for (key, value) in section.iter() {
@@ -84,9 +88,10 @@ fn generate_latex_file(title: &str, course: &str, length: u8, config: &Ini) -> S
 
     let heading = format!(
         r#"\title{{{}}}
-\author{{Louis Qian \\ {}}}
+\author{{{} \\ {}}}
 \maketitle"#,
         title,
+        author,
         course_map.get(course).unwrap_or(&course)
     );
 
