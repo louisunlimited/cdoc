@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    name: Build and release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build binary
+        run: cargo build --release
+
+      - name: Create release artifact
+        run: tar -czvf cdoc.tar.gz -C target/release cdoc
+
+      - name: Calculate SHA256
+        id: sha256
+        run: |
+          sha256sum cdoc.tar.gz | awk '{ print $1 }' > sha256.txt
+          echo "::set-output name=sha256::$(cat sha256.txt)"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./cdoc.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Homebrew Formula
+        run: |
+          echo "Updating Homebrew formula"
